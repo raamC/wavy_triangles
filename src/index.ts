@@ -17,23 +17,24 @@ type Triangle = {
 
 const canvas: any = document.querySelector("#canvas");
 const ctx = canvas.getContext("2d");
-const width = canvas.width;
-const height = canvas.height;
-ctx.translate(0,height); 
+const canvasSize = canvas.width;
+ctx.translate(0,canvasSize); 
 ctx.scale(1,-1);
+// var canvasSize = 1000;
 
-
-// const points: number[] = [0,19,40,66,93,127,164,210,258,310,365,430,494,568,642,727,812,905,1000]
-const points: number[] = [0, 100, 300, 600, 1000]
-const triangles: Triangle[] = getTriangles(points)
+const points: number[] = scalePoints([0,19,40,66,93,127,164,210,258,310,365,430,494,568,642,727,812,905,1000])
+// const points: number[] = scalePoints([0, 0.5, 1.5, 3, 5])
+const triangles: Triangle[] = getTriangles(scalePoints(points))
 
 // drawTriangle({x:0, y:0}, {x:500, y:800},{x:1000, y:500})
-
-console.log(triangles)
 
 triangles.forEach(t => {
     drawTriangle(t.left, t.bottom, t.top)
 })
+
+function scalePoints(points: number[]): number[]{
+    return points.map(p => p * (canvasSize/points[points.length - 1]))
+}
 
 function drawTriangle(c1: Coordinate, c2: Coordinate, c3: Coordinate){
     ctx.beginPath();
@@ -73,11 +74,14 @@ function getIntersection(h: Line, v: Line): Coordinate{
     return {x,y}
 }
 
+console.log(getHorizontalLines(points))
+console.log(getVerticalLines(points))
+
 function getHorizontalLines(points: number[]): Line[]{
     const oppositePoints: number[] = getOppositePoints(points)
     const lines: Line[] = []
 
-    points.map((p,i) => lines.push(getLineFromTwoCoordinates({x: 0, y: points[i]}, {x: points.length, y: oppositePoints[i]})))
+    points.map((p,i) => lines.push(getLineFromTwoCoordinates({x: 0, y: oppositePoints[i]}, {x: canvasSize, y: points[i]})))
     return lines
 }
 
@@ -85,12 +89,12 @@ function getVerticalLines(points: number[]): Line[]{
     const oppositePoints: number[] = getOppositePoints(points)
     const lines: Line[] = []
 
-    points.map((p,i) => lines.push(getLineFromTwoCoordinates({x: points[i], y: points.length}, {x: oppositePoints[i], y: 0})))
-    points.map((p,i) => lines.push(getLineFromTwoCoordinates({x: points[i], y: points.length}, {x: oppositePoints[i], y: 0})))
+    points.map((p,i) => lines.push(getLineFromTwoCoordinates({x: oppositePoints[i], y: canvasSize}, {x: points[i], y: 0})))
     return lines
 }
 
 function getLineFromTwoCoordinates(c1: Coordinate, c2: Coordinate): Line{
+
     const dy: number = (c1.y - c2.y)
     const dx: number = (c1.x - c2.x)
 
@@ -100,7 +104,16 @@ function getLineFromTwoCoordinates(c1: Coordinate, c2: Coordinate): Line{
 
     const gradient: number = dy/dx
     const intercept: number  = c1.y - gradient * c1.x
+
+    // console.log(`C1: ${c1.x} ${c1.y}`)
+    // console.log(`C2: ${c2.x} ${c2.y}`)
+    // console.log(`grad: ${gradient}`)
+    // console.log(`int: ${intercept}`)
+
+
     return {m: gradient, c: intercept, x: null}
+
+
 }
 
 function getOppositePoints(points: number[]): number[]{

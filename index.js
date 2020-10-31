@@ -1,17 +1,19 @@
 var canvas = document.querySelector("#canvas");
 var ctx = canvas.getContext("2d");
-var width = canvas.width;
-var height = canvas.height;
-ctx.translate(0, height);
+var canvasSize = canvas.width;
+ctx.translate(0, canvasSize);
 ctx.scale(1, -1);
-// const points: number[] = [0,19,40,66,93,127,164,210,258,310,365,430,494,568,642,727,812,905,1000]
-var points = [0, 100, 300, 600, 1000];
-var triangles = getTriangles(points);
+// var canvasSize = 1000;
+var points = scalePoints([0, 19, 40, 66, 93, 127, 164, 210, 258, 310, 365, 430, 494, 568, 642, 727, 812, 905, 1000]);
+// const points: number[] = scalePoints([0, 0.5, 1.5, 3, 5])
+var triangles = getTriangles(scalePoints(points));
 // drawTriangle({x:0, y:0}, {x:500, y:800},{x:1000, y:500})
-console.log(triangles);
 triangles.forEach(function (t) {
     drawTriangle(t.left, t.bottom, t.top);
 });
+function scalePoints(points) {
+    return points.map(function (p) { return p * (canvasSize / points[points.length - 1]); });
+}
 function drawTriangle(c1, c2, c3) {
     ctx.beginPath();
     ctx.moveTo(c1.x, c1.y);
@@ -44,17 +46,18 @@ function getIntersection(h, v) {
     var y = h.m * x + h.c;
     return { x: x, y: y };
 }
+console.log(getHorizontalLines(points));
+console.log(getVerticalLines(points));
 function getHorizontalLines(points) {
     var oppositePoints = getOppositePoints(points);
     var lines = [];
-    points.map(function (p, i) { return lines.push(getLineFromTwoCoordinates({ x: 0, y: points[i] }, { x: points.length, y: oppositePoints[i] })); });
+    points.map(function (p, i) { return lines.push(getLineFromTwoCoordinates({ x: 0, y: oppositePoints[i] }, { x: canvasSize, y: points[i] })); });
     return lines;
 }
 function getVerticalLines(points) {
     var oppositePoints = getOppositePoints(points);
     var lines = [];
-    points.map(function (p, i) { return lines.push(getLineFromTwoCoordinates({ x: points[i], y: points.length }, { x: oppositePoints[i], y: 0 })); });
-    points.map(function (p, i) { return lines.push(getLineFromTwoCoordinates({ x: points[i], y: points.length }, { x: oppositePoints[i], y: 0 })); });
+    points.map(function (p, i) { return lines.push(getLineFromTwoCoordinates({ x: oppositePoints[i], y: canvasSize }, { x: points[i], y: 0 })); });
     return lines;
 }
 function getLineFromTwoCoordinates(c1, c2) {
@@ -65,6 +68,10 @@ function getLineFromTwoCoordinates(c1, c2) {
     }
     var gradient = dy / dx;
     var intercept = c1.y - gradient * c1.x;
+    // console.log(`C1: ${c1.x} ${c1.y}`)
+    // console.log(`C2: ${c2.x} ${c2.y}`)
+    // console.log(`grad: ${gradient}`)
+    // console.log(`int: ${intercept}`)
     return { m: gradient, c: intercept, x: null };
 }
 function getOppositePoints(points) {
