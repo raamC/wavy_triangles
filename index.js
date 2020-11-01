@@ -17,8 +17,8 @@ function animate() {
 function oscillate(centrePoint) {
     // macro oscillation
     var timeDiff = Date.now() - startTime;
-    var cycleTime = 100000;
-    var maxDistortion = 120;
+    var cycleTime = 1000000;
+    var maxDistortion = 100;
     var macroOscillation = Math.sin((timeDiff % cycleTime) * (2 * Math.PI / cycleTime)) * maxDistortion;
     // micro oscillation
     var millisecond = new Date().getMilliseconds();

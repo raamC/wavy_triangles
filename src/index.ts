@@ -41,8 +41,8 @@ function animate(){
 function oscillate(centrePoint: number):  number {
     // macro oscillation
     const timeDiff = Date.now() - startTime
-    const cycleTime = 100000
-    const maxDistortion = 120
+    const cycleTime = 1000000
+    const maxDistortion = 100
     const macroOscillation = Math.sin((timeDiff % cycleTime) * (2 * Math.PI / cycleTime)) * maxDistortion
 
     // micro oscillation
