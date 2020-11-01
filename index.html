@@ -16,18 +16,17 @@
 <!-- <script>
 
 
-function getRandomInt(max) {
-  return Math.floor(Math.random() * Math.floor(max));
-}
 
 var canvas = document.getElementById("canvas");
 var width = canvas.width;
 var height = canvas.height;
 
 var ctx = canvas.getContext("2d");
-var fps = 5
-// ctx.translate(0,height); 
-// ctx.scale(1,-1);
+var fps = 60
+
+
+ctx.translate(0,height); 
+ctx.scale(1,-1);
 
 // ctx.beginPath();
 //     ctx.moveTo(width, 0);
@@ -43,11 +42,20 @@ function animate(currentTime){
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.beginPath();
     ctx.moveTo(width, 0);
-    ctx.lineTo(0, getRandomInt(height));
+    ctx.lineTo(0, getYvalue(width/4, 25));
     ctx.lineTo(width, height);
     ctx.fill();
 
     setTimeout(()=> requestAnimationFrame(animate), 1000/fps)  
+}
+
+function getYvalue(centrePoint, amplitude) {
+  var n = new Date().getMilliseconds();
+  var y = Math.sin(n * ((2* Math.PI)/999)) * amplitude + centrePoint
+
+  console.log(`millisecond: ${n}`)
+  console.log(`y: ${y}`)
+  return y
 }
 
 </script> -->

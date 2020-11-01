@@ -20,20 +20,51 @@ const ctx = canvas.getContext("2d");
 const canvasSize = canvas.width;
 ctx.translate(0,canvasSize); 
 ctx.scale(1,-1);
-// var canvasSize = 1000;
+const fps = 60;
+const startTime = Date.now()
+console.log(startTime)
+
 
 const points: number[] = scalePoints([0,19,40,66,93,127,164,210,258,310,365,430,494,568,642,727,812,905,1000])
-// const points: number[] = scalePoints([0, 0.5, 1.5, 3, 5])
-const triangles: Triangle[] = getTriangles(scalePoints(points))
+requestAnimationFrame(animate);
 
-// drawTriangle({x:0, y:0}, {x:500, y:800},{x:1000, y:500})
+function animate(){
+    ctx.clearRect(0, 0, canvasSize, canvasSize);
+    
+    const triangles: Triangle[] = getTriangles(points.map(p => oscillate(p)))
+    drawTriangles(triangles)
 
-triangles.forEach(t => {
-    drawTriangle(t.left, t.bottom, t.top)
-})
+    setTimeout(()=> requestAnimationFrame(animate), 1000/fps)  
+}
+
+function getDistanceEffect(point: number): number{
+    return (canvasSize/2 - Math.abs(canvasSize/2 - point))/ (canvasSize/2) // 0 at edges, 1 at the centre
+}
+
+function oscillate(centrePoint: number):  number {
+    // macro oscillation
+    const timeDiff = Date.now() - startTime
+    const cycleTime = 100000
+    const maxDistortion = 120
+    const modulo = Math.sin((timeDiff % cycleTime) * (2* Math.PI / cycleTime)) * maxDistortion
+    console.log(modulo)
+
+
+    // micro oscillation
+    const millisecond: number = new Date().getMilliseconds(); // between 0 and 999
+    const theta = millisecond * ((2* Math.PI)/999) // between 0 and 2pi
+    const sinTheta = Math.sin(theta) // between -1 and 1
+    return centrePoint + (sinTheta * getDistanceEffect(centrePoint) * modulo) // oscillates about the centre point by +- 5% of the centrepoint value 
+}
 
 function scalePoints(points: number[]): number[]{
     return points.map(p => p * (canvasSize/points[points.length - 1]))
+}
+
+function drawTriangles(triangles: Triangle[]): void{
+    triangles.forEach(t => {
+        drawTriangle(t.left, t.bottom, t.top)
+    })
 }
 
 function drawTriangle(c1: Coordinate, c2: Coordinate, c3: Coordinate){
@@ -74,9 +105,6 @@ function getIntersection(h: Line, v: Line): Coordinate{
     return {x,y}
 }
 
-console.log(getHorizontalLines(points))
-console.log(getVerticalLines(points))
-
 function getHorizontalLines(points: number[]): Line[]{
     const oppositePoints: number[] = getOppositePoints(points)
     const lines: Line[] = []
@@ -105,14 +133,7 @@ function getLineFromTwoCoordinates(c1: Coordinate, c2: Coordinate): Line{
     const gradient: number = dy/dx
     const intercept: number  = c1.y - gradient * c1.x
 
-    // console.log(`C1: ${c1.x} ${c1.y}`)
-    // console.log(`C2: ${c2.x} ${c2.y}`)
-    // console.log(`grad: ${gradient}`)
-    // console.log(`int: ${intercept}`)
-
-
     return {m: gradient, c: intercept, x: null}
-
 
 }
 
@@ -125,20 +146,13 @@ function getOppositePoints(points: number[]): number[]{
     return oppositePoints
 }
 
-// function getPoints(stepSize, numberOfPoints, fudge){
-//     const points = []
-//     for (let i=0; i<numberOfPoints; i++){
-//         points.push(i > 0 ? points[i -1]*(1 +stepSize/100) + fudge  : 0)
-//     }
-//     return points
-// }
 
-// tsc --out test2.js index.ts
+
+// tsc --out index.js src/index.ts -w
 
 // TODO
 
-// measure points from image
-// scale to canvas size
+// fix boundary lines
+// change amplitude across image
 
-// animate
-// oscillate
+

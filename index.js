@@ -3,16 +3,40 @@ var ctx = canvas.getContext("2d");
 var canvasSize = canvas.width;
 ctx.translate(0, canvasSize);
 ctx.scale(1, -1);
-// var canvasSize = 1000;
+var fps = 60;
+var startTime = Date.now();
+console.log(startTime);
 var points = scalePoints([0, 19, 40, 66, 93, 127, 164, 210, 258, 310, 365, 430, 494, 568, 642, 727, 812, 905, 1000]);
-// const points: number[] = scalePoints([0, 0.5, 1.5, 3, 5])
-var triangles = getTriangles(scalePoints(points));
-// drawTriangle({x:0, y:0}, {x:500, y:800},{x:1000, y:500})
-triangles.forEach(function (t) {
-    drawTriangle(t.left, t.bottom, t.top);
-});
+requestAnimationFrame(animate);
+function animate() {
+    ctx.clearRect(0, 0, canvasSize, canvasSize);
+    var triangles = getTriangles(points.map(function (p) { return oscillate(p); }));
+    drawTriangles(triangles);
+    setTimeout(function () { return requestAnimationFrame(animate); }, 1000 / fps);
+}
+function getDistanceEffect(point) {
+    return (canvasSize / 2 - Math.abs(canvasSize / 2 - point)) / (canvasSize / 2); // 0 at edges, 1 at the centre
+}
+function oscillate(centrePoint) {
+    // macro oscillation
+    var timeDiff = Date.now() - startTime;
+    var cycleTime = 100000;
+    var maxDistortion = 120;
+    var modulo = Math.sin((timeDiff % cycleTime) * (2 * Math.PI / cycleTime)) * maxDistortion;
+    console.log(modulo);
+    // micro oscillation
+    var millisecond = new Date().getMilliseconds(); // between 0 and 999
+    var theta = millisecond * ((2 * Math.PI) / 999); // between 0 and 2pi
+    var sinTheta = Math.sin(theta); // between -1 and 1
+    return centrePoint + (sinTheta * getDistanceEffect(centrePoint) * modulo); // oscillates about the centre point by +- 5% of the centrepoint value 
+}
 function scalePoints(points) {
     return points.map(function (p) { return p * (canvasSize / points[points.length - 1]); });
+}
+function drawTriangles(triangles) {
+    triangles.forEach(function (t) {
+        drawTriangle(t.left, t.bottom, t.top);
+    });
 }
 function drawTriangle(c1, c2, c3) {
     ctx.beginPath();
@@ -46,8 +70,6 @@ function getIntersection(h, v) {
     var y = h.m * x + h.c;
     return { x: x, y: y };
 }
-console.log(getHorizontalLines(points));
-console.log(getVerticalLines(points));
 function getHorizontalLines(points) {
     var oppositePoints = getOppositePoints(points);
     var lines = [];
@@ -68,10 +90,6 @@ function getLineFromTwoCoordinates(c1, c2) {
     }
     var gradient = dy / dx;
     var intercept = c1.y - gradient * c1.x;
-    // console.log(`C1: ${c1.x} ${c1.y}`)
-    // console.log(`C2: ${c2.x} ${c2.y}`)
-    // console.log(`grad: ${gradient}`)
-    // console.log(`int: ${intercept}`)
     return { m: gradient, c: intercept, x: null };
 }
 function getOppositePoints(points) {
@@ -82,16 +100,7 @@ function getOppositePoints(points) {
     }
     return oppositePoints;
 }
-// function getPoints(stepSize, numberOfPoints, fudge){
-//     const points = []
-//     for (let i=0; i<numberOfPoints; i++){
-//         points.push(i > 0 ? points[i -1]*(1 +stepSize/100) + fudge  : 0)
-//     }
-//     return points
-// }
-// tsc --out test2.js index.ts
+// tsc --out index.js src/index.ts -w
 // TODO
-// measure points from image
-// scale to canvas size
-// animate
-// oscillate
+// fix boundary lines
+// change amplitude across image
