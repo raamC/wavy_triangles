@@ -1,63 +1,11 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-  <meta charset="utf-8">
-  <title>Wavy triangles</title>
-
-</head>
-
-<body>
-  <!-- <p>Wavy triangles</p> -->
- 
-  <canvas id="canvas" width="1000" height="1000"></canvas>
-
-<script src="index.js"></script>
-<!-- <script>
-
-
-
-var canvas = document.getElementById("canvas");
-var width = canvas.width;
-var height = canvas.height;
-
-var ctx = canvas.getContext("2d");
-var fps = 60
-
-
-ctx.translate(0,height); 
-ctx.scale(1,-1);
-
-// ctx.beginPath();
-//     ctx.moveTo(width, 0);
-//     ctx.lineTo(0, getRandomInt(height));
-//     ctx.lineTo(width, height);
-//     ctx.fill();
-
-    requestAnimationFrame(animate);
-
-
-function animate(currentTime){
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.beginPath();
-    ctx.moveTo(width, 0);
-    ctx.lineTo(0, getYvalue(width/4, 25));
-    ctx.lineTo(width, height);
-    ctx.fill();
-
-    setTimeout(()=> requestAnimationFrame(animate), 1000/fps)  
-}
-
-function getYvalue(centrePoint, amplitude) {
-  var n = new Date().getMilliseconds();
-  var y = Math.sin(n * ((2* Math.PI)/999)) * amplitude + centrePoint
-
-  console.log(`millisecond: ${n}`)
-  console.log(`y: ${y}`)
-  return y
-}
-
-</script> -->
-</body>
+  <head>
+    <meta charset="utf-8">
+    <title>Wavy triangles</title>
+  </head>
+  <body>
+    <canvas id="canvas" width="1000" height="1000"></canvas>
+    <script src="index.js"></script>
+  </body>
 </html>

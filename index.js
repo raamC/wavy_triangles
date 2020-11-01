@@ -1,11 +1,11 @@
 var canvas = document.querySelector("#canvas");
 var ctx = canvas.getContext("2d");
 var canvasSize = canvas.width;
+//converts canvas to cartesian coordinates
 ctx.translate(0, canvasSize);
 ctx.scale(1, -1);
 var fps = 60;
 var startTime = Date.now();
-console.log(startTime);
 var points = scalePoints([0, 19, 40, 66, 93, 127, 164, 210, 258, 310, 365, 430, 494, 568, 642, 727, 812, 905, 1000]);
 requestAnimationFrame(animate);
 function animate() {
@@ -14,24 +14,19 @@ function animate() {
     drawTriangles(triangles);
     setTimeout(function () { return requestAnimationFrame(animate); }, 1000 / fps);
 }
-function getDistanceEffect(point) {
-    return (canvasSize / 2 - Math.abs(canvasSize / 2 - point)) / (canvasSize / 2); // 0 at edges, 1 at the centre
-}
 function oscillate(centrePoint) {
     // macro oscillation
     var timeDiff = Date.now() - startTime;
     var cycleTime = 100000;
     var maxDistortion = 120;
-    var modulo = Math.sin((timeDiff % cycleTime) * (2 * Math.PI / cycleTime)) * maxDistortion;
-    console.log(modulo);
+    var macroOscillation = Math.sin((timeDiff % cycleTime) * (2 * Math.PI / cycleTime)) * maxDistortion;
     // micro oscillation
-    var millisecond = new Date().getMilliseconds(); // between 0 and 999
-    var theta = millisecond * ((2 * Math.PI) / 999); // between 0 and 2pi
-    var sinTheta = Math.sin(theta); // between -1 and 1
-    return centrePoint + (sinTheta * getDistanceEffect(centrePoint) * modulo); // oscillates about the centre point by +- 5% of the centrepoint value 
+    var millisecond = new Date().getMilliseconds();
+    var microOscillation = Math.sin(millisecond * ((2 * Math.PI) / 999));
+    return centrePoint + (microOscillation * getDistanceEffect(centrePoint) * macroOscillation);
 }
-function scalePoints(points) {
-    return points.map(function (p) { return p * (canvasSize / points[points.length - 1]); });
+function getDistanceEffect(point) {
+    return (canvasSize / 2 - Math.abs(canvasSize / 2 - point)) / (canvasSize / 2); // 0 at edges, 1 at the centre
 }
 function drawTriangles(triangles) {
     triangles.forEach(function (t) {
@@ -100,7 +95,6 @@ function getOppositePoints(points) {
     }
     return oppositePoints;
 }
-// tsc --out index.js src/index.ts -w
-// TODO
-// fix boundary lines
-// change amplitude across image
+function scalePoints(points) {
+    return points.map(function (p) { return p * (canvasSize / points[points.length - 1]); });
+}
